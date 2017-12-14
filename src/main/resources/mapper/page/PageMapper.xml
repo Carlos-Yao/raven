@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cc.raven.page.mapper.PageMapper">
+    <sql id="selectSqlFields">id,`name`,configuration,description</sql>
+    <sql id="insertSqlFields">`name`,configuration,description</sql>
+
+    <select id="selectById" resultType="cc.raven.page.model.Page">
+        select <include refid="selectSqlFields"/> from page where id=#{id}
+    </select>
+
+</mapper>

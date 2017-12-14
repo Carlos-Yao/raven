@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="image/manyou.ico" rel="shortcut icon"/>
+    <title>用户注册</title>
+</head>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    .subject {
+        background-color: lightseagreen;
+        height: 50px;
+        text-align: left;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+    .tipFont {
+        width: 120px;
+        color: red;
+        font-size: 80%;
+        display: inline-block;
+        text-align: left;
+    }
+
+    .inputStyle {
+        width: 200px;
+        height: 20px;
+    }
+</style>
+<body>
+<div style="text-align: center">
+    <div class="subject"><h1>账户设置</h1></div>
+    <div>
+        <div style="width: 120px;text-align: right;display: inline-block">用户名：</div>
+        <input class="inputStyle" type="text" placeholder="长度为5-12" id="user" onblur="checkUserAccount(this.value)"/>
+        <div id="userTip" class="tipFont"></div>
+    </div>
+    <div style="margin-top: 20px">
+        <div style="width: 120px;text-align: right;display: inline-block">密 码：</div>
+        <input class="inputStyle" type="password" placeholder="长度为8-15" id="pwd" onblur="checkPwd(this.value)"/>
+        <div id="pwdTip" class="tipFont"></div>
+    </div>
+    <div style="margin-top: 20px">
+        <div style="width: 120px;text-align: right;display: inline-block">再次输入密码：</div>
+        <input class="inputStyle" type="password" placeholder="再次确认密码" id="rePwd" onblur="checkRePwd(this.value)"/>
+        <div id="rePwdTip" class="tipFont"></div>
+    </div>
+    <div class="subject"><h1>个人资料</h1></div>
+    <div style="margin-top: 20px">
+        <div style="width: 120px;text-align: right;display: inline-block">姓名：</div>
+        <input class="inputStyle" type="text" placeholder="请输入姓名......" id="name" onblur=""/>
+        <div id="nameTip" class="tipFont"></div>
+    </div>
+    <div style="margin-top: 20px">
+        <div style="width: 120px;text-align: right;display: inline-block">年龄：</div>
+        <input class="inputStyle" type="number" placeholder="0-150" id="age" onblur=""/>
+        <div id="ageTip" class="tipFont"></div>
+    </div>
+    <div style="margin-top: 20px">
+        <div style="width: 120px;text-align: right;display: inline-block">性别：</div>
+        <select class="inputStyle" id="sex">
+            <option value="">请选择</option>
+            <option value="男">男</option>
+            <option value="女">女</option>
+        </select>
+        <div id="sexTip" class="tipFont"></div>
+    </div>
+    <div style="margin-top: 80px;margin-left: -50px">
+        <div>
+            <button onclick="register()" style="background-color: #00a65a;width: 50px;height: 30px;margin-left: 20px">
+                注册
+            </button>
+            <button onclick="reset()" style="background-color: #78BA32;width: 50px;height: 30px">重置</button>
+        </div>
+    </div>
+    <div style="text-align:right;padding-right: 100px;margin-top: 30px"><a href="login.html">>>返回登录页面</a></div>
+    <div>
+    </div>
+    <script>
+        function register() {
+            var sendData = {}
+            sendData["userName"] = $("#user").val();
+            sendData["password"] = $("#pwd").val();
+            sendData["name"] = $("#name").val();
+            sendData["age"] = $("#age").val();
+            sendData["sex"] = $("#sex").val();
+            if (sendData.userName.trim().length < 5 || sendData.userName.trim().length > 12) {
+                alert("用户名长度为5-12位！");
+                return
+            }
+            var pass = true;
+            $.ajax({
+                type: "get",
+                url: location.protocol + "//" + location.host + "/user/checkUser/" + sendData.userName.trim(),
+                async: false,
+                success: function (res) {
+                    if (!res) {
+                        alert("用户名已存在！");
+                        pass = false
+                    }
+                }
+            })
+            if (!pass) {
+                return
+            }
+            if (sendData.password.trim().length < 8 || sendData.password.trim().length > 15) {
+                alert("密码长度为8-15位！");
+                return
+            }
+            var rePwd = $("#rePwd").val().trim();
+            if (sendData.password != rePwd) {
+                alert("两次输入的密码不相同！");
+                return
+            }
+            if (sendData.name.trim() == "") {
+                alert("姓名不能为空！");
+                return
+            }
+            if (!sendData.age || sendData.age < 0 || sendData.age > 150) {
+                alert("请输入正确的年龄！");
+                return
+            }
+            if (sendData.sex == "") {
+                alert("请选择性别！");
+                return
+            }
+            $.ajax({
+                type: "post",
+                url: location.protocol + "//" + location.host + "/user/add",
+                data: JSON.stringify(sendData),
+                dataType: "json",
+                contentType: 'application/json;charset=UTF-8',
+                async: true,
+                success: function (res) {
+                    $("input,select").val("")
+                    if (confirm("注册成功，确认跳转至登录页面？")) {
+                        location.href = "login.html"
+                    }
+                }
+            })
+        }
+        function reset() {
+            $("input,select").val("")
+        }
+        function checkUserAccount(val) {
+            if (val.length < 5 || val.length > 12) {
+                $("#userTip").html("长度为5-12位！");
+                return
+            } else {
+                $("#userTip").html("");
+            }
+            $.ajax({
+                type: "get",
+                url: location.protocol + "//" + location.host + "/user/checkUser/" + val,
+                success: function (res) {
+                    if (res.data) {
+                        $("#userTip").html("");
+                    } else {
+                        $("#userTip").html("用户名已存在");
+                    }
+                }
+            })
+        }
+        function checkPwd(val) {
+            if (val.length < 8 || val.length > 15) {
+                $("#pwdTip").html("长度为8-15位！");
+            } else {
+                $("#pwdTip").html("");
+            }
+        }
+        function checkRePwd(val) {
+            var pwd = $("#pwd").val().trim();
+            if (pwd != val) {
+                $("#rePwdTip").html("两次密码不相同");
+            } else {
+                $("#rePwdTip").html("");
+            }
+        }
+    </script>
+    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+</body>
+</html>

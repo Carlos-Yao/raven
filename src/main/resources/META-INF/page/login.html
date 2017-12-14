@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="image/manyou.ico" rel="shortcut icon"/>
+    <title>资源管理</title>
+</head>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    .backImg {
+        position: absolute;
+        background: url('image/mxzr.jpg') no-repeat;
+        background-size: 100% 100%;
+        width: 100vw;
+        height: 100vh;
+        z-index: -1;
+        opacity: 0.6;
+
+    }
+</style>
+<body>
+<div class="backImg"></div>
+<div style="height: 40vh"></div>
+<div style="text-align: center">
+    <div>
+        <div style="width: 66px;text-align: right;display: inline-block">用户名：</div>
+        <input type="text" placeholder="请输入用户名....." id="user"/>
+    </div>
+    <div style="margin-top: 20px">
+        <div style="width: 66px;text-align: right;display: inline-block">密 码：</div>
+        <input type="password" placeholder="请输入密码....." id="pwd"/>
+    </div>
+    <div style="margin-top: 20px">
+        <div>
+            <button onclick="login()" style="background-color: #00a65a;width: 50px;height: 30px;margin-left: 20px">登录</button>
+            <button onclick="toRegister()" style="background-color: #78BA32;width: 50px;height: 30px">注册</button>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+<script>
+    $(function(){})
+    function login() {
+        var user = $("#user").val();
+        var pwd = $("#pwd").val();
+        var sendData = {
+            userName: user,
+            password: pwd
+        }
+        $.ajax({
+            type: "post",
+            url: location.protocol + "//" + location.host + "/user/login",
+            data: JSON.stringify(sendData),
+            dataType:"json",
+            contentType: 'application/json;charset=UTF-8',
+            async: true,
+            success: function (res) {
+                if (!res.data) {
+                    alert(res.message);
+                    return;
+                }
+                location.href = "homepage.html"
+            }
+        })
+    }
+    function toRegister() {
+        window.location.href = "register.html";
+    }
+</script>
+</body>
+</html>

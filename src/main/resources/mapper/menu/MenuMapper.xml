@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cc.raven.menu.mapper.MenuMapper">
+    <sql id="selectSqlFields">id,`name`,parent,page,`index`,description</sql>
+    <sql id="insertSqlFields">`name`,parent,page,`index`,description</sql>
+
+    <insert id="insert" parameterType="cc.raven.menu.model.Menu">
+        insert into menu (<include refid="insertSqlFields"/>) values (#{name},#{parent},#{page},#{index},#{description})
+    </insert>
+    <select id="selectAll" resultType="cc.raven.menu.model.Menu">
+        select <include refid="selectSqlFields"/> from menu
+    </select>
+
+</mapper>

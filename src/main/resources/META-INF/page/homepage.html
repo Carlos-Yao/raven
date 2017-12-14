@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="image/manyou.ico" rel="shortcut icon"/>
+    <title>主页</title>
+</head>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    .inputSpan {
+        margin-top: 20px;
+        width: 100px;
+        text-align: right;
+    }
+
+    .buttonSty {
+        width: 60px;;
+    }
+</style>
+<body>
+<div>
+    <div style="font-size: 70%"><span>当前用户：</span><span id="name"></span></div>
+    <hr/>
+    <div id="uploadFile">
+        <h2 style="text-align: center">文件上传</h2>
+        <div style="margin-top: 15px">
+            <div style="width: 120px;text-align: right;display: inline-block">文件名：</div>
+            <input type="text" id="fileName"/>
+        </div>
+        <div style="margin-top: 15px">
+            <div style="width: 120px;text-align: right;display: inline-block">上传文件：</div>
+            <input type="file" id="file"/>
+        </div>
+        <div style="text-align: center;margin-top: 15px">
+            <button onclick="subFile()" class="buttonSty" style="background-color: #00a65a;margin-bottom: 20px">上传
+            </button>
+        </div>
+    </div>
+    <hr/>
+    <div>
+        <h2 style="text-align: center">我的文件</h2>
+        <table id="fileTable" style="text-align: center;width: 100%;margin-top: 15px">
+            <thead>
+            <tr>
+                <th>文件名</th>
+                <th>文件大小</th>
+                <th>上传时间</th>
+                <th>上传人</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="fileBody"></tbody>
+        </table>
+    </div>
+</div>
+<script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+<script>
+    $(function () {
+        $.ajax({
+            type: "get",
+            url: location.protocol + "//" + location.host + "/user/getInfo.lg",
+            success: function (res) {
+                if (typeof (res) == "String") {
+                    alert("检测到您未登录，点击返回登录页面！")
+                    location.href = "login.html"
+                    return
+                }
+                $("#name").html(res.data.name);
+                loadMyFile();
+            }
+        })
+    })
+    function loadMyFile() {
+        $.ajax({
+            type: "get",
+            url: location.protocol + "//" + location.host + "/file/getMyFile.lg",
+            success: function (res) {
+                if (typeof (res) == "String") {
+                    alert("检测到您未登录，点击返回登录页面！")
+                    location.href = "login.html"
+                    return
+                }
+                $("#fileBody").html("");
+                $(res.data).each(function () {
+                    $("#fileBody").append("<tr><td>" + this.realName +
+                            "</td><td>" + this.size +
+                            "</td><td>" + this.createTimeStr +
+                            "</td><td>" + this.uploader +
+                            "</td><td><button class='buttonSty' onclick='downloadFile( " + this.id + ")'>下载</button><button " +
+                            "class='buttonSty' style='margin-left: 5px' onclick='delFile(" + this.id + ")'>删除</button></td></tr>");
+                })
+            }
+        })
+    }
+
+    function downloadFile(id) {
+        window.open(location.protocol + "//" + location.host + "/file/download/" + id + ".lg");
+    }
+    function delFile(id) {
+        if (!confirm("是否确认删除？")) {
+            return;
+        }
+        $.ajax({
+            type: "get",
+            url: location.protocol + "//" + location.host + "/file/delete/" + id + ".lg",
+            success: function (res) {
+                if (typeof (res) == "String") {
+                    alert("检测到您未登录，点击返回登录页面！")
+                    location.href = "login.html"
+                    return
+                }
+                alert("删除成功");
+                location.reload();
+            }
+        })
+    }
+    function subFile() {
+        var fileName = $("#fileName").val();
+        if (fileName.trim() == "") {
+            alert("文件名不能为空！")
+            return;
+        }
+        var file = $("#file")[0].files[0];
+        if (typeof (file)== "undefined") {
+            alert("请选择上传文件！")
+            return;
+        }
+        var formData = new FormData();
+        formData.append("fileName", fileName);
+        formData.append("file", file);
+        $.ajax({
+            type: "post",
+            url: location.protocol + "//" + location.host + "/file/upload.lg",
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (res) {
+                if (typeof (res) == "String") {
+                    alert("检测到您未登录，点击返回登录页面！")
+                    location.href = "login.html"
+                    return
+                }
+                alert(res.message);
+                location.reload();
+            }
+        })
+    }
+</script>
+</body>
+</html>

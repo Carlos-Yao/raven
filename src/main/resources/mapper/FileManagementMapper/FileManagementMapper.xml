@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cc.raven.filemanagement.mapper.FileManagementMapper">
+    <sql id="selectSqlFields">id,realName,`fileName`,`size`,savePath,createTime,uploader,isDelete</sql>
+    <sql id="insertSqlFields">realName,`fileName`,`size`,savePath,createTime,uploader</sql>
+
+    <insert id="uploadRecord" parameterType="cc.raven.user.pojo.UserPOJO">
+        insert into upload_file (<include refid="insertSqlFields"/>) values
+        (#{realName},#{fileName},#{size},#{savePath},now(),#{uploader})
+    </insert>
+    <update id="delete" parameterType="java.lang.String">
+        update upload_file set isDelete = 1 where id = #{id} and uploader = #{userName}
+    </update>
+    <select id="selectByUserName" resultType="cc.raven.filemanagement.model.FileMessage"
+            parameterType="java.lang.String">
+        select
+        <include refid="selectSqlFields"/>
+        from upload_file where uploader=#{userName} and isDelete = 0 order by createTime desc
+    </select>
+    <select id="selectByUserId" resultType="cc.raven.filemanagement.model.FileMessage">
+        select
+        <include refid="selectSqlFields"/>
+        from upload_file where id=#{id} and isDelete = 0
+    </select>
+</mapper>
